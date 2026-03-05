@@ -58,7 +58,7 @@ def get_skill(args, config, dataset):
         label_info = [json.loads(line) for line in f]
 
     cluster_skills, cluster_attributes = skill_synthesizer.cluster(
-        label_info=label_info,
+        skills=label_info,
         cluster_skill_out_file_path=os.path.join(config["skill_synthesizer"]["cluster_out_file_path"], f"skill_{args.proposer}_{args.dataset}.jsonl"),
         cluster_attribute_out_file_path=os.path.join(config["skill_synthesizer"]["cluster_out_file_path"], f"attribute_{args.proposer}_{args.dataset}.jsonl"),
         max_tokens=config["skill_synthesizer"]["proposer"][args.proposer]["max_tokens"],
@@ -483,9 +483,10 @@ def main():
     logger.info(f"Using GPU: {torch.cuda.device_count()}")
 
     args = argparser()
-    config = load_config("src/config/proposer_config.yml")
+    config = load_config("src/proposer_config.yml")
 
     dataset = load_dataset(args.dataset)
+    dataset = dataset[:10]
     logger.info(f"Loaded {len(dataset)} problems")
 
     if not os.path.exists(os.path.join(config["skill_synthesizer"]["cluster_out_file_path"], f"skill_{args.proposer}_{args.dataset}.jsonl")) or \

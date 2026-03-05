@@ -3,9 +3,8 @@ import logging
 import litellm
 import re
 import random
-import os
 import numpy as np
-
+import os
 from typing import Dict, List, Any, Optional, Tuple
 from tqdm import tqdm
 
@@ -19,12 +18,12 @@ from prompts import skill_reflection_prompt, get_code_problem_predictor_prompt, 
 
 logger = logging.getLogger("TaskVerifier")
 
-SKILL_REASON = "Proposed task does not mainly focused on target skill(s)."
-DIFFICULTY_REASON = "Proposed task is either too easy or too hard."
-
 MODEL_MAP = {
     "o4-mini": "azure/o4-mini",
 }
+
+SKILL_REASON = "Proposed task does not mainly focused on target skill(s)."
+DIFFICULTY_REASON = "Proposed task is either too easy or too hard."
 
 class TaskVerifier:
     def __init__(
@@ -265,7 +264,7 @@ class TaskVerifier:
                 api_base=os.getenv("AZURE_API_BASE"),
                 api_version=os.getenv("AZURE_API_VERSION"),
                 request_timeout=60,
-                num_retries=10,
+                num_retries=3,
             )
             return [res["choices"][0]["message"]["content"] for res in responses]
         except Exception:

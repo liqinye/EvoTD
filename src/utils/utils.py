@@ -28,7 +28,7 @@ def str2list(value: str) -> List[float]:
     return [float(x) for x in value.strip('[]').split(',')]
 
 
-def setup_logger(level: str = "INFO", log_file: str = "logs/output.log"):
+def setup_logger(level: str = "INFO"):
     logger = logging.getLogger()
     logger.handlers.clear()
     logger.setLevel(level)
@@ -42,12 +42,7 @@ def setup_logger(level: str = "INFO", log_file: str = "logs/output.log"):
     console_handler.setLevel(level)
     console_handler.setFormatter(formatter)
 
-    file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
-    file_handler.setLevel(level)
-    file_handler.setFormatter(formatter)
-
     logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
     logger.propagate = False
 
     return logger

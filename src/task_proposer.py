@@ -2,7 +2,6 @@ import json
 import logging
 import litellm
 import os
-
 from tqdm import tqdm
 from typing import List, Dict, Any, Optional, Tuple
 from itertools import repeat
@@ -34,7 +33,6 @@ class TaskProposer:
         attribute_list: List[Dict[str, Any]],
     ):
         self.model = MODEL_MAP[model]
-        # self.model = model
         self.skill_list = skill_list
         self.attribute_list = attribute_list
 
@@ -255,7 +253,7 @@ class TaskProposer:
                 api_base=os.getenv("AZURE_API_BASE"),
                 api_version=os.getenv("AZURE_API_VERSION"),
                 request_timeout=60,
-                num_retries=10,
+                num_retries=3,
             )
             return [res["choices"][0]["message"]["content"] for res in responses]
         except Exception:

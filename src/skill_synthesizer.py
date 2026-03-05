@@ -1,6 +1,7 @@
 import logging
 import litellm
 import json
+import os
 from tqdm import tqdm
 from typing import List, Dict, Any, Optional
 
@@ -10,6 +11,9 @@ from utils.parsers import strip_json
 
 logger = logging.getLogger("SkillSynthesizer")
 
+MODEL_MAP = {
+    "o4-mini": "azure/o4-mini",
+}
 
 class SkillSynthesizer:
     def __init__(
@@ -17,17 +21,15 @@ class SkillSynthesizer:
         model: str,
         dataset: List[Dict[str, Any]],
     ):
-        self.model = model
+        self.model = MODEL_MAP[model]
         self.dataset = dataset
 
     def label_skill(
         self,
-        call_mode: str,
         skill_out_file_path: str,
         batch_size: Optional[int] = None,
         max_tokens: Optional[int] = None,
     ):
-        self._ensure_thread_mode(call_mode)
 
         responses = []
         for batch in tqdm(
@@ -57,31 +59,30 @@ class SkillSynthesizer:
     def cluster(
         self,
         skills,
-        call_mode: str,
         cluster_skill_out_file_path: str,
         cluster_attribute_out_file_path: str,
         max_tokens: Optional[int] = None,
     ):
-        self._ensure_thread_mode(call_mode)
 
         logger.info("Clustering skills...")
         skill_list_str = self._prepare_skill_list(skills)
-        self._cluster_and_save(
+        cluster_skills = self._cluster_and_save(
             prompt_template=cluster_skill_prompt,
-            skill_list_str=skill_list_str,
+            format_kwargs={"skill_list": skill_list_str},
             output_path=cluster_skill_out_file_path,
             max_tokens=max_tokens,
         )
 
         logger.info("Clustering attributes...")
-        attributes = self._cluster_and_save(
+        attribute_list_str = self._prepare_attribute_list(skills)
+        cluster_attributes = self._cluster_and_save(
             prompt_template=cluster_attribute_prompt,
-            skill_list_str=skill_list_str,
+            format_kwargs={"attribute_list": attribute_list_str},
             output_path=cluster_attribute_out_file_path,
             max_tokens=max_tokens,
         )
 
-        return attributes
+        return cluster_skills, cluster_attributes
 
     def _thread_call(
         self,
@@ -96,6 +97,8 @@ class SkillSynthesizer:
                 api_key=os.getenv("AZURE_API_KEY"),
                 api_base=os.getenv("AZURE_API_BASE"),
                 api_version=os.getenv("AZURE_API_VERSION"),
+                request_timeout=60,
+                num_retries=3,
             )
             return [res["choices"][0]["message"]["content"] for res in responses]
         except Exception:
@@ -113,6 +116,17 @@ class SkillSynthesizer:
             if skill:
                 skill_list_str += "\n".join([f"{skill_name}:{description}" for skill_name, description in skill.items()])
         return skill_list_str
+
+    def _prepare_attribute_list(
+        self,
+        skills,
+    ):
+        attribute_list_str = ""
+        for task_skill in skills:
+            attributes = task_skill.get("attributes")
+            if attributes:
+                attribute_list_str += "\n".join([f"{attr_name}:{description}" for attr_name, description in attributes.items()])
+        return attribute_list_str
 
     def _format_skill_responses(
         self,
@@ -145,11 +159,11 @@ class SkillSynthesizer:
     def _cluster_and_save(
         self,
         prompt_template: str,
-        skill_list_str: str,
+        format_kwargs: Dict[str, str],
         output_path: str,
         max_tokens: Optional[int],
     ) -> List[Dict[str, Any]]:
-        messages = [format_messages(prompt=prompt_template.format(skill_list=skill_list_str))]
+        messages = [format_messages(prompt=prompt_template.format(**format_kwargs))]
         response = self._thread_call(messages=messages, max_tokens=max_tokens)
 
         try:
@@ -164,6 +178,7 @@ class SkillSynthesizer:
         return parsed
 
     def _write_jsonl(self, path: str, records: List[Dict[str, Any]]):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w") as f:
             for record in records:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
@@ -181,6 +196,3 @@ class SkillSynthesizer:
             return 1 if items else 0
         return (len(items) + batch_size - 1) // batch_size
 
-    def _ensure_thread_mode(self, call_mode: str):
-        if call_mode != "thread":
-            raise ValueError("SkillSynthesizer only supports 'thread' call mode.")

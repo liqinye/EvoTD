@@ -1,5 +1,3 @@
-source script/init_api_key.sh
-
 gpus="0,1,2,3"
 
 dataset="usaco"
@@ -15,7 +13,7 @@ upper_bound=1.0
 
 task_type="code_out"
 
-CUDA_VISIBLE_DEVICES=$gpus python src/main_iter.py \
+CUDA_VISIBLE_DEVICES=$gpus python src/main.py \
     --dataset $dataset \
     --proposer $proposer \
     --proposer_batch_size $proposer_batch_size \
@@ -27,28 +25,28 @@ CUDA_VISIBLE_DEVICES=$gpus python src/main_iter.py \
     --upper_bound $upper_bound
 
 
-task_type="code_in"
+# task_type="code_in"
 
-CUDA_VISIBLE_DEVICES=$gpus python src/main_iter.py \
-    --dataset $dataset \
-    --proposer $proposer \
-    --proposer_batch_size $proposer_batch_size \
-    --solver_batch_size $solver_batch_size \
-    --task_type $task_type \
-    --solver $solver \
-    --iteration $iteration \
-    --lower_bound $lower_bound \
-    --upper_bound $upper_bound
+# CUDA_VISIBLE_DEVICES=$gpus python src/main.py \
+#     --dataset $dataset \
+#     --proposer $proposer \
+#     --proposer_batch_size $proposer_batch_size \
+#     --solver_batch_size $solver_batch_size \
+#     --task_type $task_type \
+#     --solver $solver \
+#     --iteration $iteration \
+#     --lower_bound $lower_bound \
+#     --upper_bound $upper_bound
 
-task_type="code_func"
+# task_type="code_func"
 
-CUDA_VISIBLE_DEVICES=$gpus python src/main_iter.py \
-    --dataset $dataset \
-    --proposer $proposer \
-    --proposer_batch_size $proposer_batch_size \
-    --solver_batch_size $solver_batch_size \
-    --task_type $task_type \
-    --solver $solver \
-    --iteration $iteration \
-    --lower_bound $lower_bound \
-    --upper_bound $upper_bound
+# CUDA_VISIBLE_DEVICES=$gpus python src/main.py \
+#     --dataset $dataset \
+#     --proposer $proposer \
+#     --proposer_batch_size $proposer_batch_size \
+#     --solver_batch_size $solver_batch_size \
+#     --task_type $task_type \
+#     --solver $solver \
+#     --iteration $iteration \
+#     --lower_bound $lower_bound \
+#     --upper_bound $upper_bound

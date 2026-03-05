@@ -1,0 +1,65 @@
+# Skill synthesis
+skill_synthesizer:
+  proposer:
+    o4-mini:
+      max_tokens: 100000
+  skill_out_file_path: data/skill
+  cluster_out_file_path: data/cluster
+  batch_file_path: data/skill/batch
+
+# Task proposer
+task_proposer:
+  proposer:
+    o4-mini:
+      max_tokens: 100000
+  task_out_file_path: data/task
+  num_inputs: 10
+  banned_keywords:
+    - logging
+    - random
+    - multiprocessing
+    - pebble
+    - subprocess
+    - threading
+    - datetime
+    - time
+    - hashlib
+    - hmac
+    - bcrypt
+    - os.sys
+    - os.path
+    - sys.exit
+    - os.environ
+    - calendar
+    - datetime
+  remove_after_return: true
+  remove_comments: true
+  remove_print: true
+
+# Task verifier
+task_verifier:
+  rollout: 10
+  check_determinism: true
+  proposer:
+    o4-mini:
+      max_tokens: 30000
+  solver:
+    qwen3-4b: /storage/home/hcoda1/7/lye48/r-schava6-1/hf_models/Qwen3-4B
+    max_tokens: 8096
+    temperature: 1.0
+    top_p: 0.99
+    seed: 42
+    stop_words: ["</answer>"]
+
+task_evaluator:
+  eval_data: <FILL IN YOUR LOCAL EVAL DATA PATH>
+  output_path: <FILL IN YOUR LOCAL OUTPUT PATH>
+  rollout: 10
+  solver:
+    model_path: <FILL IN YOUR LOCAL MODEL PATH>
+    max_tokens: 8096
+    temperature: 1.0
+    top_p: 0.99
+    seed: 42
+    stop_words: ["</answer>"]
+
