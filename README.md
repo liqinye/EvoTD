@@ -266,10 +266,9 @@ EvoTD/
 └── LICENSE                           # MIT License
 ```
 
-## Hardware Requirements
+## Coming Up Soon
 
-- **Task Synthesis**: 4+ NVIDIA GPUs (for local solver model during difficulty verification)
-- **RL Training**: 4+ NVIDIA GPUs with sufficient VRAM for the target model
+- [ ] Evaluation code and benchmarks
 
 ## License
 
