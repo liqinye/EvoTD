@@ -77,6 +77,7 @@ export AZURE_API_KEY="..."
 export AZURE_API_BASE="https://your-resource.openai.azure.com/"
 export AZURE_API_VERSION="2024-12-01-preview"
 ```
+
 ## Configuration
 
 The pipeline reads from `src/proposer_config.yml`. You need to configure it before running. Key sections:
